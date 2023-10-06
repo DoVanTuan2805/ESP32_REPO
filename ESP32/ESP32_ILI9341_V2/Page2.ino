@@ -11,7 +11,6 @@ void showPage2() {
   setTemperature();
   D_Temp();
   DEF_Cylcle();
-
   DEF_Time();
   Delay_Time();
   DEF_Exit_Temp();
@@ -22,7 +21,7 @@ void setTemperature() {
   tft.setTextColor(ILI9341_BLACK);
   tft.setTextSize(2);
   tft.setCursor(PAGE2_X + 10, RECT_Y(0) + 15);
-  tft.print("SET TIME");
+  tft.print("SET TEMP");
 }
 void D_Temp() {
   tft.fillRoundRect(PAGE2_X, RECT_Y(1), W_PAGE2, H_PAGE2, 5, ILI9341_WHITE);
@@ -62,5 +61,5 @@ void DEF_Exit_Temp() {
   tft.setTextColor(ILI9341_BLACK);
   tft.setTextSize(2);
   tft.setCursor(RECT_X + 5, RECT_Y(2) + 15);
-  tft.print("EXIT TIME");
+  tft.print("EXIT TEMP");
 }

@@ -15,6 +15,7 @@ const int thermistorDefort = 39;
 
 bool PAD_DOWN = false;
 uint64_t timePress, timeShowScreen, timeReadTemp, timeSleppScreen;
+
 typedef struct {
   uint16_t year;
   uint8_t day;
@@ -38,18 +39,51 @@ typedef struct {
 } Temperature_t;
 Temperature_t Temperature;
 
+typedef struct {
+  int8_t int8DTemp;         // RANGE RUN RELAY COOLER
+  uint8_t int8DEFCycle;     // TIME HOUR DEFORT
+  uint8_t int8DEFTime;      // TIME MINUTE COOLER
+  uint8_t int8DelayTime;    // DELAY PROCESS
+  uint8_t int8DEFExitTemp;  // TEMP EXIT DEFORT
+} Setting_t;
+Setting_t setting;
+
+typedef enum {
+  MAIN_PAGE2,
+  STemp,
+  DTemp,
+  DEFCycle,
+  DEFTime,
+  DelayTime,
+  DEFExitTemp
+} Mode_t;
+Mode_t mode;
+
+typedef struct {
+  bool Up;
+  bool Down;
+  bool Ok;
+} Choose_t;
+Choose_t Choose;
+
 typedef enum {
   PAGE1 = 0,
-  PAGE2 = 1
+  PAGE2 = 1,
+  PAGE3 = 2
 } Page_t;
+
 Page_t page;
-bool boolSwitchPage = 0;
 bool wifiCon = false;
+int8_t int8SwitchPage = 0;
+bool OnOffSystem = false;
+bool OnOffDefort = true;
+
+bool showSwitchPage = true;
 void setup() {
   Serial.begin(115200);
   init_Screen();
 
-  switchPage();
+  switchPage(showSwitchPage);
   init_Touch();
   init_Relay();
 
@@ -60,6 +94,12 @@ void setup() {
   dateTime.day = 14;
   dateTime.month = 10;
   dateTime.year = 2002;
+
+  setting.int8DTemp = 3;
+  setting.int8DEFCycle = 6;
+  setting.int8DEFTime = 10;
+  setting.int8DelayTime = 3;
+  setting.int8DEFExitTemp = 5;
 
   Temperature.SetTemp = -10;
   // Temperature.RealTemp = -30.15;
@@ -72,38 +112,58 @@ void loop() {
     Temperature.HeatTemp = readThermistor(thermistorDefort);
     timeReadTemp = millis();
   }
-  if (millis() - timeShowScreen >= 1000) {
-    switchPage();
+  if (millis() - timeShowScreen >= 500) {
+    switchPage(showSwitchPage);
     if (page == PAGE1) {
       showPage1();
     }
     if (page == PAGE2) {
-      showPage2();
+      if (mode == MAIN_PAGE2) {
+        showPage2();
+      } else {
+        screenAdjust();
+        if (mode == STemp) {
+          pageSetTemp();
+        } else if (mode == DTemp) {
+          pageDTemp();
+        } else if (mode == DEFCycle) {
+          pageDEFCycle();
+        } else if (mode == DEFTime) {
+          pageDEFTime();
+        } else if (mode == DelayTime) {
+          pageDelayTime();
+        } else if (mode == DEFExitTemp) {
+          pageDEFExitTemp();
+        }
+      }
     }
     timeShowScreen = millis();
   }
   if (touch.tirqTouched()) {
     if (touch.touched()) {
-      tft.sendCommand(0x11); // Wake display
+      // tft.sendCommand(0x11); // Wake display
       rawLocation = touch.getPoint();
       Pos.TouchX = rawLocation.x;
       Pos.TouchY = rawLocation.y;
-      // Serial.print("x = ");
-      // Serial.print(Pos.TouchX);
-      // Serial.print(", y = ");
-      // Serial.print(Pos.TouchY);
-      // Serial.println();
+      Serial.print("x = ");
+      Serial.print(Pos.TouchX);
+      Serial.print(", y = ");
+      Serial.print(Pos.TouchY);
+      Serial.println();
       timePress = millis();
       timeSleppScreen = millis();
       PAD_DOWN = true;
     }
   }
-  if (PAD_DOWN == true && (millis() - timePress >= 200)) {
+  if (PAD_DOWN == true && (millis() - timePress >= 500)) {
     Serial.println("Press");
     pressSwitchPage(Pos.TouchX, Pos.TouchY);
+    if (page == PAGE2) {
+      pressPage2(Pos.TouchX, Pos.TouchY);
+    }
     PAD_DOWN = false;
   }
   if (PAD_DOWN == false && (millis() - timeSleppScreen >= 10000)) {
-    tft.sendCommand(0x10);  // Sleep
+    // tft.sendCommand(0x10);  // Sleep
   }
 }

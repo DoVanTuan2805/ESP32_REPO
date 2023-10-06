@@ -55,36 +55,3 @@ float readThermistor(int pin) {
   tCelsius = tKelvin - 273.15;
   return tCelsius;
 }
-#define SWITCH_PAGE1_X 30
-#define SWITCH_PAGE1_Y 190
-
-#define SWITCH_PAGE2_X 200
-#define SWITCH_PAGE2_Y 190
-
-#define W_SWITCH_PAGE 90
-#define H_SWITCH_PAGE 40
-void switchPage() {
-  tft.drawRoundRect(5, 5, 310, 230, 5, ILI9341_ORANGE);
-
-  tft.drawRoundRect(SWITCH_PAGE1_X, SWITCH_PAGE1_Y, W_SWITCH_PAGE, H_SWITCH_PAGE, 5, ILI9341_ORANGE);  // x y w h
-  tft.drawRoundRect(SWITCH_PAGE2_X, SWITCH_PAGE2_Y, W_SWITCH_PAGE, H_SWITCH_PAGE, 5, ILI9341_ORANGE);  // x y w h
-
-  if (page == PAGE1) {
-    tft.fillRoundRect(SWITCH_PAGE2_X + 2, SWITCH_PAGE2_Y + 2, W_SWITCH_PAGE - 4, H_SWITCH_PAGE - 4, 5, ILI9341_WHITE);
-    tft.fillRoundRect(SWITCH_PAGE1_X + 2, SWITCH_PAGE1_Y + 2, W_SWITCH_PAGE - 4, H_SWITCH_PAGE - 4, 5, ILI9341_CYAN);
-  } else {
-    tft.fillRoundRect(SWITCH_PAGE1_X + 2, SWITCH_PAGE1_Y + 2, W_SWITCH_PAGE - 4, H_SWITCH_PAGE - 4, 5, ILI9341_WHITE);
-    tft.fillRoundRect(SWITCH_PAGE2_X + 2, SWITCH_PAGE2_Y + 2, W_SWITCH_PAGE - 4, H_SWITCH_PAGE - 4, 5, ILI9341_CYAN);
-  }
-
-  tft.setCursor(SWITCH_PAGE1_X + 10, SWITCH_PAGE1_Y + 12);
-  tft.setTextColor(ILI9341_BLACK);
-  tft.setTextSize(2);
-  tft.print("PAGE 1");
-
-
-  tft.setCursor(SWITCH_PAGE2_X + 10, SWITCH_PAGE2_Y + 12);
-  tft.setTextColor(ILI9341_BLACK);
-  tft.setTextSize(2);
-  tft.print("PAGE 2");
-}
