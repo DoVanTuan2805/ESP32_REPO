@@ -39,6 +39,8 @@ void pageDTemp() {
 }
 
 void pageDEFCycle() {
+  char data[3];
+  sprintf(data, "%dh", setting.int8DEFCycle);
   tft.fillRoundRect(RECT_X, RECT_Y(0) + 15, 80, 80, 5, ILI9341_WHITE);
 
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 15);
@@ -49,10 +51,12 @@ void pageDEFCycle() {
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 45);
   tft.setTextColor(ILI9341_RED);
   tft.setTextSize(2);
-  tft.print(setting.int8DEFCycle);
+  tft.print(data);
 }
 
 void pageDEFTime() {
+  char data[3];
+  sprintf(data, "%dp", setting.int8DEFTime);
   tft.fillRoundRect(RECT_X, RECT_Y(0) + 15, 80, 80, 5, ILI9341_WHITE);
 
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 15);
@@ -63,10 +67,12 @@ void pageDEFTime() {
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 45);
   tft.setTextColor(ILI9341_RED);
   tft.setTextSize(2);
-  tft.print(setting.int8DEFTime);
+  tft.print(data);
 }
 
 void pageDelayTime() {
+  char data[3];
+  sprintf(data, "%dp", setting.int8DelayTime);
   tft.fillRoundRect(RECT_X, RECT_Y(0) + 15, 80, 80, 5, ILI9341_WHITE);
 
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 15);
@@ -77,10 +83,11 @@ void pageDelayTime() {
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 45);
   tft.setTextColor(ILI9341_RED);
   tft.setTextSize(2);
-  tft.print(setting.int8DelayTime);
+  tft.print(data);
 }
 
 void pageDEFExitTemp() {
+
   tft.fillRoundRect(RECT_X, RECT_Y(0) + 15, 80, 80, 5, ILI9341_WHITE);
 
   tft.setCursor(RECT_X + 10, RECT_Y(0) + 15);

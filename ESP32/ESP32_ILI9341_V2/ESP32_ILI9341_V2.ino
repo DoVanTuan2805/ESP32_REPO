@@ -1,20 +1,40 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
-#include <XPT2046_Touchscreen.h> /* https://github.com/PaulStoffregen/XPT2046_Touchscreen */
+#include <XPT2046_Touchscreen.h>
 #include "define_Rect_Press.h"
 #include "bitmap.h"
+#define BLYNK_TEMPLATE_ID "TMPL6tZTCwoCv"
+#define BLYNK_TEMPLATE_NAME "COOLE DEFORT"
+#define BLYNK_AUTH_TOKEN "qAEwLENmfqZ6maiBYGus1jbB4WAtUB5v"
+
+#define BLYNK_PRINT Serial
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
+#include <TimeLib.h>
+#include <WidgetRTC.h>
+#include "EEPROM.h"
+/*  BLYNK */
+WidgetRTC rtc;
+BlynkTimer timerRTC, timerReconnect, timerPushTempBlynk, timerPushSetBlynk;
+/*  LCD   */
 extern Adafruit_ILI9341 tft;
-
 extern XPT2046_Touchscreen touch;
-
 extern TS_Point rawLocation;
-
+/*  SENSOR   */
 const int thermistorCooler = 36;
 const int thermistorDefort = 39;
 
+#define RL_COOLER 32
+#define RL_DEFORT 33
+
+#define SECOND_TIME 1
+#define MINUTE_TIME 60
+#define HOUR_TIME 3600
+
 bool PAD_DOWN = false;
-uint64_t timePress, timeShowScreen, timeReadTemp, timeSleppScreen;
+uint64_t timePress, timeShowScreen, timeReadTemp, timeSleppScreen, timeDefort, timeCycle;
 
 typedef struct {
   uint16_t year;
@@ -24,7 +44,7 @@ typedef struct {
   uint8_t minute;
   uint8_t second;
 } DateTime_t;
-DateTime_t dateTime;
+DateTime_t dateTime, dateTimeLast;
 
 typedef struct {
   int TouchX;
@@ -71,14 +91,22 @@ typedef enum {
   PAGE2 = 1,
   PAGE3 = 2
 } Page_t;
-
 Page_t page;
+float saiso_cb_cooler = 0;
+float saiso_cb_defort = 0;
+
 bool wifiCon = false;
 int8_t int8SwitchPage = 0;
+
 bool OnOffSystem = false;
-bool OnOffDefort = true;
+bool OnOffDefort = false;
+bool OnOffCooler = false;
+bool OnOffOverViewDEF = false;
 
 bool showSwitchPage = true;
+/*  TIME  FOR DEFORT  */
+uint64_t minuteNow;
+uint64_t minuteLast;
 void setup() {
   Serial.begin(115200);
   init_Screen();
@@ -86,30 +114,30 @@ void setup() {
   switchPage(showSwitchPage);
   init_Touch();
   init_Relay();
+  setupWiFi();
+  init_setting();
 
-  dateTime.hour = 23;
-  dateTime.minute = 30;
-  dateTime.second = 59;
-
-  dateTime.day = 14;
-  dateTime.month = 10;
-  dateTime.year = 2002;
-
-  setting.int8DTemp = 3;
-  setting.int8DEFCycle = 6;
-  setting.int8DEFTime = 10;
-  setting.int8DelayTime = 3;
-  setting.int8DEFExitTemp = 5;
-
-  Temperature.SetTemp = -10;
-  // Temperature.RealTemp = -30.15;
-  // Temperature.HeatTemp = -27.05;
+  timerReconnect.setInterval(5000L, connectionstatus);
+  timerPushTempBlynk.setInterval(1000L, pushTempToBlynk);
+  timerPushSetBlynk.setInterval(4000L, pushSettingToBlynk);
+  timerRTC.setInterval(1000L, getTimeBlynk);
+  Serial.println("START");
 }
 
 void loop() {
+  Blynk.run();
+  timerReconnect.run();
+  timerPushTempBlynk.run();
+  timerPushSetBlynk.run();
+  timerRTC.run();
+
+  Button_config_Wifi();
+  // uartHandle();
+  processCooler();
+  processDefort();
   if (millis() - timeReadTemp >= 2000) {
-    Temperature.RealTemp = readThermistor(thermistorCooler);
-    Temperature.HeatTemp = readThermistor(thermistorDefort);
+    Temperature.RealTemp = readThermistor(thermistorCooler) + saiso_cb_cooler;
+    Temperature.HeatTemp = readThermistor(thermistorDefort) + saiso_cb_defort;
     timeReadTemp = millis();
   }
   if (millis() - timeShowScreen >= 500) {
@@ -137,6 +165,9 @@ void loop() {
         }
       }
     }
+    if (page == PAGE3) {
+      showPage3();
+    }
     timeShowScreen = millis();
   }
   if (touch.tirqTouched()) {
@@ -158,6 +189,9 @@ void loop() {
   if (PAD_DOWN == true && (millis() - timePress >= 500)) {
     Serial.println("Press");
     pressSwitchPage(Pos.TouchX, Pos.TouchY);
+    if (page == PAGE1) {
+      pressPage1(Pos.TouchX, Pos.TouchY);
+    }
     if (page == PAGE2) {
       pressPage2(Pos.TouchX, Pos.TouchY);
     }

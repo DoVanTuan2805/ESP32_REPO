@@ -37,15 +37,15 @@ void showClock() {
 void showButtonControl(bool system, bool defort) {
   static bool changeSystem;
   static bool changeDefort;
-  if(changeSystem != system){
+  if (changeSystem != system) {
     changeSystem = system;
     tft.fillRoundRect(PAGE1_X, PAGE1_Y - 10, 130, 45, 5, ILI9341_WHITE);
   }
-  if(changeDefort != defort){
+  if (changeDefort != defort) {
     changeDefort = defort;
     tft.fillRoundRect(PAGE1_X + 120 + 20, PAGE1_Y - 10, 130, 45, 5, ILI9341_WHITE);
   }
-  
+
   if (system == true) {
     tft.fillRoundRect(PAGE1_X, PAGE1_Y - 10, 130, 45, 5, ILI9341_GREEN);
     tft.setTextColor(ILI9341_BLUE);
@@ -61,7 +61,7 @@ void showButtonControl(bool system, bool defort) {
     tft.print("SYSTEM:OFF");
   }
 
-  
+
   if (defort == true) {
     tft.fillRoundRect(PAGE1_X + 120 + 20, PAGE1_Y - 10, 130, 45, 5, ILI9341_GREEN);
     tft.setTextColor(ILI9341_BLUE);
@@ -81,9 +81,10 @@ void showTemp(float RealT, float HeatT, int8_t setTemp) {
   tft.fillRoundRect(PAGE1_X - 5, PAGE1_Y + 40, W_PAGE1_TEMP, H_PAGE1_TEMP, 5, ILI9341_WHITE);
   tft.drawRoundRect(PAGE1_X - 5, PAGE1_Y + 40, W_PAGE1_TEMP, H_PAGE1_TEMP, 5, ILI9341_GREEN);
 
-  tft.drawRGBBitmap(PAGE1_X, PAGE1_Y + 45, (uint16_t *)timeBitmap, 20, 20);    // TIMER BITMAP
-  
-  
+  tft.drawRGBBitmap(PAGE1_X, PAGE1_Y + 45, (uint16_t *)timeBitmap, 20, 20);  // TIMER BITMAP
+  if (OnOffOverViewDEF == false) {
+  }
+  // if (OnOffOverViewDEF == false) {
   tft.setTextColor(ILI9341_BLUE);
   tft.setTextSize(2);
   tft.setCursor(PAGE1_X, PAGE1_Y + 70);
@@ -99,12 +100,11 @@ void showTemp(float RealT, float HeatT, int8_t setTemp) {
     tft.setTextColor(ILI9341_RED);
     tft.print("ERROR");
   }
-
+  // }
   tft.fillRoundRect(PAGE1_X + 8 + W_PAGE1_TEMP, PAGE1_Y + 40, W_PAGE1_TEMP, H_PAGE1_TEMP, 5, ILI9341_WHITE);
   tft.drawRoundRect(PAGE1_X + 8 + W_PAGE1_TEMP, PAGE1_Y + 40, W_PAGE1_TEMP, H_PAGE1_TEMP, 5, ILI9341_GREEN);
 
-  tft.drawRGBBitmap(PAGE1_X + 8 + W_PAGE1_TEMP + 5, PAGE1_Y + 45, (uint16_t *)timeBitmap, 20, 20); // TIMER BITMAP
-
+  tft.drawRGBBitmap(PAGE1_X + 8 + W_PAGE1_TEMP + 5, PAGE1_Y + 45, (uint16_t *)timeBitmap, 20, 20);  // TIMER BITMAP
   tft.setTextColor(ILI9341_BLUE);
   tft.setTextSize(2);
   tft.setCursor(PAGE1_X + 8 + W_PAGE1_TEMP + 5, PAGE1_Y + 70);

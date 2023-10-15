@@ -29,7 +29,7 @@ void pressSwitchPage(int x, int y) {
         tft.fillRoundRect(5, 5, 310, 230, 5, ILI9341_WHITE);
         switchPage(showSwitchPage);
         delay(10);
-        // showPage2();
+        showPage3();
       }
     }
     if (int8SwitchPage == 0) {

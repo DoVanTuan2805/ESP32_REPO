@@ -6,8 +6,8 @@ const float roomTemp = 298.15;  // room temperature in Kelvin
 const float Ro = 10000.0;       // Resistance of the thermistor at roomTemp
 const float R1 = 9710.0;        // Resistnce of the known resistor
 
-#define RL1 32
-#define RL2 33
+#define RL_COOLER 32
+#define RL_DEFORT 33
 
 #define TFT_DC 2
 #define _sclk 18
@@ -27,11 +27,29 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 XPT2046_Touchscreen touch(TOUCH_CS_PIN, TOUCH_IRQ);
 
 TS_Point rawLocation;
+void init_setting() {
+  // dateTime.hour = hour();
+  // dateTime.minute = minute();
+  // dateTime.second = second();
+
+  // dateTime.day = day();
+  // dateTime.month = month();
+  // dateTime.year = year();
+
+  setting.int8DTemp = 3;
+  setting.int8DEFCycle = 60;
+  setting.int8DEFTime = 5;
+  setting.int8DelayTime = 1;
+  setting.int8DEFExitTemp = 25;
+
+  Temperature.SetTemp = 28;
+  minuteLast = (hour() * HOUR_TIME) + (minute() * MINUTE_TIME) + second() * SECOND_TIME;
+}
 void init_Relay() {
-  pinMode(RL1, OUTPUT);
-  pinMode(RL2, OUTPUT);
-  digitalWrite(RL1, LOW);
-  digitalWrite(RL2, LOW);
+  pinMode(RL_COOLER, OUTPUT);
+  pinMode(RL_DEFORT, OUTPUT);
+  digitalWrite(RL_COOLER, LOW);
+  digitalWrite(RL_DEFORT, LOW);
 }
 void init_Screen() {
   tft.begin(60000000);
