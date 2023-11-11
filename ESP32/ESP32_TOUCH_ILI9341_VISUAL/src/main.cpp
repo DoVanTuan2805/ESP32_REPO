@@ -23,7 +23,6 @@ void setup()
 }
 void loop()
 {
-
   if (touch.tirqTouched())
   {
     if (touch.touched())
